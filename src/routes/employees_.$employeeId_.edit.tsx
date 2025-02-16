@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useDeleteEmployeeMutation, useEmployeeByIdQuery, useUpsertEmployeeMutation } from "@/data/employees.queries"
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 
 import { Route as employeeRoute } from '@/routes/employees_.$employeeId'
@@ -24,19 +24,19 @@ function RouteComponent() {
 
 
 
-  function onSubmit(values: SubmitArgs) {
+  const onSubmit = useCallback((values: SubmitArgs) => {
     console.log("upsert user", values)
     upsertEmployee({ ...values, id: employeeId })
     navigate({ to: employeeRoute.to, params: { employeeId } })
-  }
+  }, [employeeId, upsertEmployee, navigate]);
 
-  function onDelete() {
+  const onDelete = useCallback(() => {
     if (data) {
       console.log('deleting user', data?.id)
       deleteEmployee(data)
       navigate({ to: employeesListRoute.to })
     }
-  }
+  }, [data, deleteEmployee, navigate]);
 
   return (
     <div className='container mx-auto py-10'>

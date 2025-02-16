@@ -1,10 +1,8 @@
 import { PersonForm, SubmitArgs } from '@/components/person-form'
-import { Button } from '@/components/ui/button'
 import { useGetDependentsQuery, useUpdateDependentsMutation } from '@/data/employees.queries'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Route as employeeRoute } from '@/routes/employees_.$employeeId'
-import { Dependent } from '@/types'
 
 export const Route = createFileRoute('/empoloyees_/$employeeId_/$dependentId')({
   component: RouteComponent,
@@ -19,7 +17,7 @@ function RouteComponent() {
 
 
 
-  function onSubmit(values: SubmitArgs) {
+  const onSubmit = useCallback((values: SubmitArgs) => {
     console.log("upsert user", values)
     const updatedDependents = dependents ? dependents.map(d => 
       d.id === dependentId ? { ...d, ...values } : d
@@ -31,20 +29,11 @@ function RouteComponent() {
 
     updateDependents({ dependents: updatedDependents, employeeId });
     navigate({ to: employeeRoute.to, params: { employeeId } });
-  }
-
-  function onDelete() {
-    if (dependent && dependents) {
-      console.log('deleting user', dependent?.id)
-      updateDependents({dependents: dependents?.filter(d => d.id !== dependent.id), employeeId})
-      navigate({ to: employeeRoute.to, params: {employeeId} })
-    }
-  }
+  }, [dependents, dependentId, employeeId, updateDependents, navigate]);
 
   return (
     <div className='container mx-auto py-10'>
       <PersonForm onSubmit={onSubmit} isEmployee={true} data={dependent} />
-      {!dependent && <Button onClick={onDelete}>Delete</Button>}
 
     </div>
 

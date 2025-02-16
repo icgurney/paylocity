@@ -6,6 +6,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { SquarePlus } from 'lucide-react'
 import { Route as editRoute } from '@/routes/employees_.$employeeId_.edit'
 import { Route as dependentRoute } from '@/routes/empoloyees_.$employeeId_.$dependentId'
+import { useMemo } from 'react'
+import { calculateBenefitCost } from '@/lib/calc'
 
 export const Route = createFileRoute('/employees_/$employeeId')({
   component: RouteComponent,
@@ -13,12 +15,24 @@ export const Route = createFileRoute('/employees_/$employeeId')({
 
 function RouteComponent() {
   const { employeeId } = Route.useParams()
-  const { data: employee } = useEmployeeByIdQuery(employeeId)
+  const { data: employee, isLoading } = useEmployeeByIdQuery(employeeId)
   const { data: dependents } = useGetDependentsQuery(employeeId)
   const navigate = useNavigate()
 
+
+  const benefitsCost = useMemo(() => {
+    if (employee && dependents) {
+      return calculateBenefitCost(employee, dependents)
+      
+    }
+  }, [employee, dependents])
+
+  if (isLoading) {
+    return <div>Loading...</div>
+  }
+
   if (!employee) {
-    return <div>No Data</div>
+    return <div>No data</div>
   }
 
   return (
@@ -65,6 +79,19 @@ function RouteComponent() {
 
         </TableBody>
         </Table>
+
+        <div>
+          <h2 className='text-2xl py-4'>Benefits Package per Pay Period</h2>
+          {benefitsCost && (
+            <div>
+              <div>Base Pay: ${benefitsCost.basePay.toFixed(2)}</div>
+              <div>Employee Cost: ${benefitsCost.employeeCost.toFixed(2)}</div>
+              <div>Dependents Cost: ${benefitsCost.dependentsCost.toFixed(2)}</div>
+              <div>Total Cost: ${benefitsCost.totalCost.toFixed(2)}</div>
+              <div>Net Pay: ${benefitsCost.netPay.toFixed(2)}</div>
+            </div>
+          )}
+        </div>
     </div>
     )
 }

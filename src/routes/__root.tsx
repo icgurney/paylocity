@@ -17,7 +17,7 @@ function RootComponent() {
           }}
           activeOptions={{ exact: true }}
         >
-          Home
+          Discussion
         </Link>{' '}
         <Link
         to="/employees"

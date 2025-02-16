@@ -8,9 +8,10 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { SquarePlus } from 'lucide-react';
-import { useEmployeesQuery } from '@/data/employees.queries'
+import { useClearStorage, useEmployeesQuery } from '@/data/employees.queries'
 import { Route as editRoute } from '@/routes/employees_.$employeeId_.edit'
 import { Route as employeeRoute} from '@/routes/employees_.$employeeId'
+import { Button } from '@/components/ui/button';
 
 export const Route = createFileRoute('/employees')({
   component: RouteComponent,
@@ -19,6 +20,7 @@ export const Route = createFileRoute('/employees')({
 function RouteComponent() {
   const { data, isLoading } = useEmployeesQuery()
   const navigate = useNavigate()
+  const { mutate: clear } = useClearStorage()
 
 
   if (isLoading) {
@@ -27,6 +29,7 @@ function RouteComponent() {
 
   return (
     <div className='container mx-auto py-10'>
+      <Button onClick={() => clear()}>Reset</Button>
       <Table className='border'>
         <TableHeader>
           <TableRow>
